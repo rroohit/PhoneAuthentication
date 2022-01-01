@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Phone Authentication</string>
+    <string name="enter_mobile_num">Enter Mobile Number</string>
+    <string name="next">Next</string>
+    <string name="wrong_num_click_here">Wrong Number? Click here</string>
+    <string name="enter_otp">Enter Otp</string>
+    <string name="verify">Verify</string>
+</resources>

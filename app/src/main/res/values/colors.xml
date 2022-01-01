@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="CarnationPink">#FFFE9BB3</color>
+    <color name="Turquoise">#FF41DEB7</color>
+    <color name="ColumbiaBlue">#FF9AB2FF</color>
+    <color name="Mauve">#FFC0A4FF</color>
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
