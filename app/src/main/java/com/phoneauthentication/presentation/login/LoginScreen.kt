@@ -1,13 +1,10 @@
 package com.phoneauthentication.presentation.login
 
 import android.app.Activity
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.*
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -31,16 +29,14 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.airbnb.lottie.compose.*
-import com.google.common.base.Verify.verify
 import com.phoneauthentication.R
 import com.phoneauthentication.domain.components.CountryCodeDialog
-import com.phoneauthentication.domain.components.PhoneNumTextField
 import com.phoneauthentication.util.Screen
 import com.phoneauthentication.util.UiEvent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.time.temporal.TemporalAdjusters.next
+
 
 @ExperimentalAnimationApi
 @Composable
@@ -81,26 +77,17 @@ fun LoginScreen(
         viewModel.uiEvent.collect { event ->
             when (event) {
                 is UiEvent.Initial -> Unit
-                is UiEvent.OnLoginButtonClick -> uiState = UiVisible.PhoneNumber
 
                 is UiEvent.NavigatePhoneNumberUi -> uiState = UiVisible.PhoneNumber
-                is UiEvent.PhoneNumberUiButtonClick -> {
-
-                }
 
                 is UiEvent.NavigateOtpUi -> uiState = UiVisible.VerifyOtp
-                is UiEvent.VerifyOtpUiButtonClick -> {
-
-                }
-                is UiEvent.OnResendOtpClick -> {
-
-                }
 
                 is UiEvent.ShowSnackBar -> {
                     scaffoldState.snackbarHostState.showSnackbar(
                         message = event.uiText,
                     )
                 }
+
                 is UiEvent.UserLoggedIn -> {
                     navController.popBackStack(
                         route = Screen.LoginScreen.route,
@@ -108,6 +95,8 @@ fun LoginScreen(
                     )
                     navController.navigate(route = Screen.HomeScreen.route)
                 }
+
+                else -> Unit
             }
         }
     }
@@ -129,6 +118,8 @@ fun LoginScreen(
             logoState = LogoPosition.Finish
 
         }
+
+
     }
 
     Column(
@@ -154,12 +145,11 @@ fun LoginScreen(
                             ) {
                                 Text(text = "")
 
-                                Spacer(modifier = Modifier.height(116.dp))
-
+                                Spacer(modifier = Modifier.height(112.dp))
 
                                 Button(
                                     onClick = {
-                                        viewModel.setUiEvent(UiEvent.NavigatePhoneNumberUi)
+                                        viewModel.onEvent(UiEvent.NavigatePhoneNumberUi)
 
                                     },
                                     modifier = Modifier.size(200.dp, 50.dp)
@@ -187,25 +177,37 @@ fun LoginScreen(
 
                                     Spacer(modifier = Modifier.width(16.dp))
 
-
-                                    PhoneNumTextField(
-                                        text = viewModel.phoneNumber.value,
-                                        hint = "99750 64095",
-                                        maxLength = 10,
-                                        onTextChange = { phoneNo ->
-                                            viewModel.setPhoneNumberText(phoneNo = phoneNo)
+                                    OutlinedTextField(
+                                        value = viewModel.phoneNumber.value,
+                                        onValueChange = { phoneNo ->
+                                            if (phoneNo.length <= 10) {
+                                                viewModel.setPhoneNumberText(phoneNo.filter { str ->
+                                                    !str.isWhitespace()
+                                                })
+                                            }
                                         },
-                                        keyboardType = KeyboardType.Phone,
+                                        placeholder = {
+                                            Text(
+                                                text = "99750 12345",
+                                                style = MaterialTheme.typography.body1
+                                            )
+                                        },
                                         textStyle = TextStyle(
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 20.sp,
                                             letterSpacing = 2.sp
-                                        )
+                                        ),
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(
+                                            keyboardType = KeyboardType.Phone
+                                        ),
+
                                     )
+
 
                                 }
 
-                                Spacer(modifier = Modifier.height(16.dp))
+                                Spacer(modifier = Modifier.height(12.dp))
 
                                 when (viewModel.loginLoading.value) {
                                     true -> {
@@ -231,7 +233,25 @@ fun LoginScreen(
                                             Button(
                                                 modifier = Modifier.size(200.dp, 50.dp),
                                                 onClick = {
-                                                    viewModel.setUiEvent(UiEvent.NavigateOtpUi)
+
+                                                    if (viewModel.phoneNumber.value.length < 10) {
+
+                                                        viewModel.onEvent(
+                                                            UiEvent.ShowSnackBar(
+                                                                "Enter Valid Phone Number"
+                                                            )
+                                                        )
+
+
+                                                    } else {
+
+                                                        viewModel.onEvent(
+                                                            UiEvent.PhoneNumberUiButtonClick(
+                                                                activity = activity
+                                                            )
+                                                        )
+
+                                                    }
                                                 }
 
                                             ) {
@@ -249,28 +269,57 @@ fun LoginScreen(
                         UiVisible.VerifyOtp -> {
                             Column(
                                 modifier = Modifier
-                                    .padding(56.dp, 0.dp, 56.dp, 0.dp),
+                                    .padding(12.dp, 0.dp, 12.dp, 0.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
                                 Spacer(modifier = Modifier.height(50.dp))
 
-                                Text(text = stringResource(id = R.string.enter_otp))
+                                Text(
+                                    text = buildAnnotatedString {
+                                        append(stringResource(id = R.string.enter_otp))
+                                        append(" ")
+                                        val phoneText = viewModel.phoneNumber.value
+                                        withStyle(
+                                            style = SpanStyle(
+                                                color = MaterialTheme.colors.primary
+                                            )
+                                        ) {
+                                            append(phoneText)
+                                        }
+                                        append(" ")
+                                        append(stringResource(id = R.string.wrong_num_click_here))
+
+                                    },
+                                    style = MaterialTheme.typography.body1,
+                                    modifier = Modifier
+                                        .clickable {
+                                            if (!viewModel.loginLoading.value) {
+                                                viewModel.setPhoneNumberText("")
+                                                viewModel.onEvent(UiEvent.NavigatePhoneNumberUi)
+                                            }
+
+                                        }
+
+                                )
 
                                 Row(
                                     Modifier
                                         .height(116.dp)
-                                        .padding(start = 50.dp, end = 50.dp),
+                                        .padding(start = 100.dp, end = 100.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
 
-                                    OutlinedTextField(
+                                    TextField(
                                         value = viewModel.otp.value,
                                         onValueChange = { otp ->
                                             if (otp.length <= 6) {
-                                                viewModel.setOtpText(otp)
-
+                                                viewModel.setOtpText(otp.filter { str ->
+                                                    !str.isWhitespace()
+                                                })
                                             }
+
                                         },
+                                        maxLines = 1,
                                         textStyle = TextStyle(
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 20.sp,
@@ -280,10 +329,14 @@ fun LoginScreen(
                                         keyboardOptions = KeyboardOptions(
                                             keyboardType = KeyboardType.Number
                                         ),
+                                        colors = TextFieldDefaults.textFieldColors(
+                                            backgroundColor = Color.Transparent,
+                                        )
+
                                     )
                                 }
 
-                                Spacer(modifier = Modifier.height(16.dp))
+                                Spacer(modifier = Modifier.height(12.dp))
 
                                 when (viewModel.loginLoading.value) {
                                     true -> {
@@ -306,7 +359,20 @@ fun LoginScreen(
                                         Button(
                                             modifier = Modifier.size(200.dp, 50.dp),
                                             onClick = {
-                                                viewModel.setUiEvent(UiEvent.UserLoggedIn)
+                                                val otp = viewModel.otp.value
+
+                                                if (otp.length < 6) {
+                                                    viewModel.onEvent(
+                                                        UiEvent.ShowSnackBar(
+                                                            "Enter Valid Phone Number"
+                                                        )
+                                                    )
+                                                } else {
+                                                    viewModel.onEvent(
+                                                        UiEvent.VerifyOtpUiButtonClick
+                                                    )
+
+                                                }
                                             }
 
                                         ) {
@@ -321,7 +387,7 @@ fun LoginScreen(
                                             modifier = Modifier
                                                 .clickable {
                                                     if (viewModel.countDownTime.value == "Resend Code") {
-                                                        viewModel.setUiEvent(
+                                                        viewModel.onEvent(
                                                             UiEvent.OnResendOtpClick(
                                                                 activity = activity
                                                             )
@@ -334,6 +400,7 @@ fun LoginScreen(
                                         )
                                     }
                                 }
+
 
                             }
 
@@ -351,57 +418,6 @@ fun LoginScreen(
 
 }
 
-//
-//
-//@ExperimentalAnimationApi
-//@Composable
-//fun OtpUi(
-//    viewModel: LoginViewModel,
-//    activity: Activity,
-//    onButtonClick: () -> Unit
-//) {
-//
-//    Box() {
-//
-//        Column(
-//            modifier = Modifier
-//                .padding(24.dp, 0.dp, 24.dp, 0.dp),
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-//
-//
-//        }
-//
-//        Text(
-//            text = buildAnnotatedString {
-//                val signUpText = viewModel.phoneNumber.value
-//                withStyle(
-//                    style = SpanStyle(
-//                        color = MaterialTheme.colors.primary
-//                    )
-//                ) {
-//                    append(signUpText)
-//                }
-//                append(" ")
-//                append(stringResource(id = R.string.wrong_num_click_here))
-//
-//            },
-//            style = MaterialTheme.typography.body1,
-//            modifier = Modifier
-//                .align(Alignment.BottomCenter)
-//                .clickable {
-//                    if (!viewModel.loginLoading.value) {
-//                        viewModel.setPhoneNumberText("")
-//                        viewModel.setUiEvent(UiEvent.NavigatePhoneNumberUi)
-//                    }
-//
-//                }
-//
-//        )
-//
-//    }
-//
-//}
 
 enum class UiVisible {
     LoginButton,

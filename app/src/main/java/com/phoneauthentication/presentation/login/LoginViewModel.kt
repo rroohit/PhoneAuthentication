@@ -26,14 +26,11 @@ constructor(
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-
     private val _phoneNumber = mutableStateOf("")
     val phoneNumber: State<String> = _phoneNumber
 
-
     private val _otp = mutableStateOf("")
     val otp: State<String> = _otp
-
 
     private val _loginLoading = mutableStateOf(false)
     val loginLoading: State<Boolean> = _loginLoading
@@ -43,40 +40,44 @@ constructor(
 
     private var timer: CountDownTimer? = null
 
+    init {
+        repository.setPhoneCallbacksListener(this)
+
+    }
+
 
     fun onEvent(event: UiEvent) {
         when (event) {
-            is UiEvent.Initial -> Unit
-            is UiEvent.OnLoginButtonClick -> setUiEvent(UiEvent.NavigatePhoneNumberUi)
+            UiEvent.Initial -> Unit
 
-            is UiEvent.NavigatePhoneNumberUi -> Unit
             is UiEvent.PhoneNumberUiButtonClick -> {
-//                viewModelScope.launch {
-//                    sendOtp(phoneNumber.value, event.activity)
-//                }
+
+                viewModelScope.launch {
+                    sendOtp("+91${phoneNumber.value}", event.activity)
+                }
             }
 
-            is UiEvent.NavigateOtpUi -> Unit
             is UiEvent.VerifyOtpUiButtonClick -> {
-                //verifyOtpCode(otpCode = otp.value)
+                verifyOtpCode(otpCode = otp.value)
             }
 
             is UiEvent.OnResendOtpClick -> {
-//                viewModelScope.launch {
-//                    resendOtp(phoneNumber.value, event.activity)
-//                }
+                viewModelScope.launch {
+                    resendOtp("+91${phoneNumber.value}", event.activity)
+                }
             }
-
 
             is UiEvent.ShowSnackBar -> {
                 setUiEvent(UiEvent.ShowSnackBar(event.uiText))
             }
 
-            is UiEvent.UserLoggedIn -> Unit
+            is UiEvent.NavigatePhoneNumberUi -> setUiEvent(UiEvent.NavigatePhoneNumberUi)
+            is UiEvent.NavigateOtpUi -> setUiEvent(UiEvent.NavigateOtpUi)
+            is UiEvent.UserLoggedIn -> setUiEvent(UiEvent.UserLoggedIn)
         }
     }
 
-    fun setUiEvent(event: UiEvent) {
+    private fun setUiEvent(event: UiEvent) {
         viewModelScope.launch {
             _uiEvent.send(event)
         }
