@@ -1,5 +1,5 @@
 # PhoneAuthentication
-Firebase Phone Authentication
+Firebase Phone Authentication. Android Clean Architecture used.
 
 Screenshots
 -----------------
