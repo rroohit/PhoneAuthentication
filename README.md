@@ -1,7 +1,7 @@
 # PhoneAuthentication
 Firebase Phone Authentication
 
-ScreenShots
+Screenshots
 -----------------
 <p align="center">
 <img src="/images/login_screen.jpg" width="32%"/>
