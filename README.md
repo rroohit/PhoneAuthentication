@@ -1,5 +1,6 @@
 # PhoneAuthentication
 Firebase Phone Authentication. Android Clean Architecture used.
+A example of implementing Phone authentication feature in app.
 
 Screenshots
 -----------------
