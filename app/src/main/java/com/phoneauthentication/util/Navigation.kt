@@ -30,7 +30,7 @@ fun Navigation(
         }
 
         composable(Screen.HomeScreen.route){
-            HomeScreen()
+            HomeScreen(navController = navController)
         }
 
 

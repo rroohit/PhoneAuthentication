@@ -43,13 +43,13 @@ constructor(
     init {
         repository.setPhoneCallbacksListener(this)
 
-//        viewModelScope.launch {
-//            if (repository.isUserVerified()){
-//                setUiEvent(UiEvent.UserLoggedIn)
-//            } else {
-//                setUiEvent(UiEvent.Initial)
-//            }
-//        }
+        viewModelScope.launch {
+            if (repository.isUserVerified()){
+                setUiEvent(UiEvent.UserLoggedIn)
+            } else {
+                setUiEvent(UiEvent.Initial)
+            }
+        }
 
 
     }
