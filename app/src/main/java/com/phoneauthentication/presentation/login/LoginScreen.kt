@@ -14,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -45,6 +46,9 @@ fun LoginScreen(
     navController: NavController,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
+    val configuration = LocalConfiguration.current
+
+    val screenHeight = configuration.screenHeightDp.dp
 
     val activity = LocalContext.current as Activity
 
@@ -128,14 +132,15 @@ fun LoginScreen(
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
 
-        Box {}
+        Box(modifier = Modifier.height(screenHeight / 2)) {}
 
         AnimatedVisibility(
             visible = logoState == LogoPosition.Finish,
 
             ) {
             Box(
-                contentAlignment = Alignment.Center
+                modifier = Modifier.height(screenHeight / 2),
+                contentAlignment = Alignment.TopCenter
             ) {
                 if (logoState == LogoPosition.Finish) {
                     when (uiState) {
@@ -166,6 +171,7 @@ fun LoginScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(text = stringResource(id = R.string.enter_mobile_num))
+
                                 Row(
                                     modifier = Modifier.height(100.dp),
                                     verticalAlignment = Alignment.CenterVertically,
@@ -202,7 +208,7 @@ fun LoginScreen(
                                             keyboardType = KeyboardType.Phone
                                         ),
 
-                                    )
+                                        )
 
 
                                 }
@@ -267,21 +273,133 @@ fun LoginScreen(
 
                         }
                         UiVisible.VerifyOtp -> {
-                            Column(
-                                modifier = Modifier
-                                    .padding(12.dp, 0.dp, 12.dp, 0.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
+                            Box(
+                                modifier = Modifier.fillMaxHeight()
+                                    .padding(bottom = 24.dp)
                             ) {
-                                Spacer(modifier = Modifier.height(50.dp))
+                                Column(
+                                    modifier = Modifier
+                                        .padding(12.dp, 0.dp, 12.dp, 0.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                ) {
+
+                                    Text(text = stringResource(id = R.string.enter_otp))
+
+                                    Row(
+                                        Modifier
+                                            .height(100.dp)
+                                            .padding(start = 100.dp, end = 100.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+
+                                        TextField(
+                                            value = viewModel.otp.value,
+                                            onValueChange = { otp ->
+                                                if (otp.length <= 6) {
+                                                    viewModel.setOtpText(otp.filter { str ->
+                                                        !str.isWhitespace()
+                                                    })
+                                                }
+
+                                            },
+                                            maxLines = 1,
+                                            textStyle = TextStyle(
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 20.sp,
+                                                textAlign = TextAlign.Center,
+                                                letterSpacing = 10.sp
+                                            ),
+                                            keyboardOptions = KeyboardOptions(
+                                                keyboardType = KeyboardType.Number
+                                            ),
+                                            colors = TextFieldDefaults.textFieldColors(
+                                                backgroundColor = Color.Transparent,
+                                            )
+
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    when (viewModel.loginLoading.value) {
+                                        true -> {
+
+                                            AnimatedVisibility(
+                                                visible = viewModel.loginLoading.value,
+                                                enter = fadeIn(),
+                                                exit = fadeOut()
+                                            ) {
+                                                CircularProgressIndicator(
+                                                    modifier = Modifier.size(50.dp, 50.dp),
+                                                )
+
+
+                                            }
+
+
+                                        }
+                                        false -> {
+                                            Button(
+                                                modifier = Modifier.size(200.dp, 50.dp),
+                                                onClick = {
+                                                    val otp = viewModel.otp.value
+
+                                                    if (otp.length < 6) {
+                                                        viewModel.onEvent(
+                                                            UiEvent.ShowSnackBar(
+                                                                "Enter Valid Otp"
+                                                            )
+                                                        )
+                                                    } else {
+                                                        viewModel.onEvent(
+                                                            UiEvent.VerifyOtpUiButtonClick
+                                                        )
+
+                                                    }
+                                                }
+
+                                            ) {
+                                                Text(text = stringResource(id = R.string.verify))
+                                            }
+
+                                            Spacer(modifier = Modifier.height(16.dp))
+
+
+                                            Text(
+                                                text = viewModel.countDownTime.value,
+                                                modifier = Modifier
+                                                    .clickable {
+                                                        if (viewModel.countDownTime.value == "Resend Code") {
+                                                            viewModel.onEvent(
+                                                                UiEvent.OnResendOtpClick(
+                                                                    activity = activity
+                                                                )
+                                                            )
+
+                                                        }
+
+                                                    }
+
+                                            )
+                                        }
+                                    }
+
+
+
+
+
+
+                                }
 
                                 Text(
                                     text = buildAnnotatedString {
-                                        append(stringResource(id = R.string.enter_otp))
-                                        append(" ")
                                         val phoneText = viewModel.phoneNumber.value
                                         withStyle(
                                             style = SpanStyle(
-                                                color = MaterialTheme.colors.primary
+                                                color = MaterialTheme.colors.primary,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 17.sp
                                             )
                                         ) {
                                             append(phoneText)
@@ -292,6 +410,7 @@ fun LoginScreen(
                                     },
                                     style = MaterialTheme.typography.body1,
                                     modifier = Modifier
+                                        .align(Alignment.BottomCenter)
                                         .clickable {
                                             if (!viewModel.loginLoading.value) {
                                                 viewModel.setPhoneNumberText("")
@@ -301,108 +420,8 @@ fun LoginScreen(
                                         }
 
                                 )
-
-                                Row(
-                                    Modifier
-                                        .height(116.dp)
-                                        .padding(start = 100.dp, end = 100.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-
-                                    TextField(
-                                        value = viewModel.otp.value,
-                                        onValueChange = { otp ->
-                                            if (otp.length <= 6) {
-                                                viewModel.setOtpText(otp.filter { str ->
-                                                    !str.isWhitespace()
-                                                })
-                                            }
-
-                                        },
-                                        maxLines = 1,
-                                        textStyle = TextStyle(
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 20.sp,
-                                            textAlign = TextAlign.Center,
-                                            letterSpacing = 10.sp
-                                        ),
-                                        keyboardOptions = KeyboardOptions(
-                                            keyboardType = KeyboardType.Number
-                                        ),
-                                        colors = TextFieldDefaults.textFieldColors(
-                                            backgroundColor = Color.Transparent,
-                                        )
-
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.height(12.dp))
-
-                                when (viewModel.loginLoading.value) {
-                                    true -> {
-
-                                        AnimatedVisibility(
-                                            visible = viewModel.loginLoading.value,
-                                            enter = fadeIn(),
-                                            exit = fadeOut()
-                                        ) {
-                                            CircularProgressIndicator(
-                                                modifier = Modifier.size(50.dp, 50.dp),
-                                            )
-
-
-                                        }
-
-
-                                    }
-                                    false -> {
-                                        Button(
-                                            modifier = Modifier.size(200.dp, 50.dp),
-                                            onClick = {
-                                                val otp = viewModel.otp.value
-
-                                                if (otp.length < 6) {
-                                                    viewModel.onEvent(
-                                                        UiEvent.ShowSnackBar(
-                                                            "Enter Valid Phone Number"
-                                                        )
-                                                    )
-                                                } else {
-                                                    viewModel.onEvent(
-                                                        UiEvent.VerifyOtpUiButtonClick
-                                                    )
-
-                                                }
-                                            }
-
-                                        ) {
-                                            Text(text = stringResource(id = R.string.verify))
-                                        }
-
-                                        Spacer(modifier = Modifier.height(16.dp))
-
-
-                                        Text(
-                                            text = viewModel.countDownTime.value,
-                                            modifier = Modifier
-                                                .clickable {
-                                                    if (viewModel.countDownTime.value == "Resend Code") {
-                                                        viewModel.onEvent(
-                                                            UiEvent.OnResendOtpClick(
-                                                                activity = activity
-                                                            )
-                                                        )
-
-                                                    }
-
-                                                }
-
-                                        )
-                                    }
-                                }
-
-
                             }
+
 
                         }
 
