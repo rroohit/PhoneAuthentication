@@ -82,4 +82,12 @@ dependencies {
     //lottie animation
     implementation "com.airbnb.android:lottie-compose:4.2.2"
 
+    // Dependencies for local unit tests
+    testImplementation "junit:junit:$junitVersion"
+
+    // AndroidX Test - Instrumented testing
+    androidTestImplementation "androidx.test.ext:junit:$androidXTestExtKotlinRunnerVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
+
+
 }

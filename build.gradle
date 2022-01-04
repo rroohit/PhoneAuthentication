@@ -20,6 +20,16 @@ buildscript {
     }
 }
 
+ext {
+
+    // App dependencies
+    junitVersion = '4.13.2'
+    androidXTestExtKotlinRunnerVersion = '1.1.3'
+    espressoVersion = '3.4.0'
+
+
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
