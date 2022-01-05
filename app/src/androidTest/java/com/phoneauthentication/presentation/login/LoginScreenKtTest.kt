@@ -3,7 +3,9 @@ package com.phoneauthentication.presentation.login
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ScaffoldState
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.navigation.NavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.phoneauthentication.presentation.main.MainActivity
@@ -58,8 +60,21 @@ class LoginScreenKtTest {
         advanceTimeBy(1200)
 
         composeTestRule
-            .onNodeWithTag("logo")
+            .onNodeWithTag("login button")
             .assertExists()
+
+        composeTestRule
+            .onNodeWithTag("login button")
+            .performClick()
+
+        composeTestRule
+            .onNodeWithContentDescription("next button")
+            .assertExists()
+
+
+
+
+
     }
 
 

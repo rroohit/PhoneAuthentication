@@ -17,8 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -246,7 +248,10 @@ fun LoginScreen(
                                             exit = fadeOut()
                                         ) {
                                             Button(
-                                                modifier = Modifier.size(200.dp, 50.dp),
+                                                modifier = Modifier.size(200.dp, 50.dp)
+                                                    .semantics {
+                                                               contentDescription  = "next button"
+                                                    },
                                                 onClick = {
 
                                                     if (viewModel.phoneNumber.value.length < 10) {
