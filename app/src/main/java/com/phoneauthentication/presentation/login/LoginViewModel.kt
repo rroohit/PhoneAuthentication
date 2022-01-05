@@ -131,7 +131,7 @@ constructor(
         repository.resendOtpCode(phoneNo, activity)
     }
 
-    private fun verifyOtpCode(otpCode: String) {
+    fun verifyOtpCode(otpCode: String) {
         _loginLoading.value = true
         repository.verifyOtpCode(otpCode = otpCode)
     }
