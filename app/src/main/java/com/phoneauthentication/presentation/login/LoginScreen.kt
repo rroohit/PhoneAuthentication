@@ -218,8 +218,10 @@ fun LoginScreen(
                                         keyboardOptions = KeyboardOptions(
                                             keyboardType = KeyboardType.Phone
                                         ),
-
-                                        )
+                                        modifier = Modifier.semantics {
+                                            testTag = "input phone number"
+                                        }
+                                    )
 
 
                                 }
@@ -250,7 +252,7 @@ fun LoginScreen(
                                             Button(
                                                 modifier = Modifier.size(200.dp, 50.dp)
                                                     .semantics {
-                                                               contentDescription  = "next button"
+                                                               testTag  = "next button"
                                                     },
                                                 onClick = {
 
@@ -329,7 +331,10 @@ fun LoginScreen(
                                             ),
                                             colors = TextFieldDefaults.textFieldColors(
                                                 backgroundColor = Color.Transparent,
-                                            )
+                                            ),
+                                            modifier = Modifier.semantics {
+                                                testTag = "input otp"
+                                            }
 
                                         )
                                     }

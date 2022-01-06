@@ -2,10 +2,8 @@ package com.phoneauthentication.presentation.login
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ScaffoldState
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
 import androidx.navigation.NavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.phoneauthentication.presentation.main.MainActivity
@@ -43,7 +41,7 @@ class LoginScreenKtTest {
 
 
     @Test
-    fun splashScreen_LogoDisplays() = testDispatcher.runBlockingTest {
+    fun splashScreen_LoginScreen_Components() = testDispatcher.runBlockingTest {
         composeTestRule.setContent {
             PhoneAuthenticationTheme {
                 LoginScreen(
@@ -56,26 +54,51 @@ class LoginScreenKtTest {
         composeTestRule
             .onNodeWithTag("logo")
             .assertExists()
+            .assertIsDisplayed()
 
         advanceTimeBy(1200)
 
         composeTestRule
             .onNodeWithTag("login button")
             .assertExists()
-
-        composeTestRule
-            .onNodeWithTag("login button")
+            .assertIsDisplayed()
             .performClick()
 
+
         composeTestRule
-            .onNodeWithContentDescription("next button")
+            .onNodeWithTag("input phone number")
+            .assertExists()
+            .assertIsDisplayed()
+            .performTextClearance()
+
+        composeTestRule
+            .onNodeWithTag("input phone number")
+            .performTextInput("9975064095")
+
+        composeTestRule
+            .onNodeWithTag("input phone number")
+            .performTextInput("00")
+
+        composeTestRule
+            .onNodeWithTag("input phone number")
+            .assertTextEquals("9975064095")
+
+        composeTestRule
+            .onNodeWithTag("next button")
+            .assertExists()
+            .assertIsDisplayed()
+            .performClick()
+
+
+        //Need to navigate to otp layout
+        composeTestRule
+            .onNodeWithTag("input otp")
             .assertExists()
 
 
 
-
-
     }
+
 
 
 
