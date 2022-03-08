@@ -49,7 +49,11 @@ constructor(
                     }
 
                     is FirebaseNetworkException -> {
-                        phoneCallbacksListener.onVerificationFailed("Network not available.")
+//                        phoneCallbacksListener.onVerificationFailed("Network not available.")
+
+                        val errorText = removeSurroundingString(firebaseException.message)
+                        phoneCallbacksListener.onVerificationFailed(errorText)
+
 
                     }
 
@@ -79,7 +83,7 @@ constructor(
         }
 
 
-    override suspend fun sendOtpToPhone(phoneNumber: String, activity: Activity){
+    override suspend fun sendOtpToPhone(phoneNumber: String, activity: Activity) {
         val options = PhoneAuthOptions.newBuilder(auth)
             .setPhoneNumber(phoneNumber)
             .setTimeout(60L, TimeUnit.SECONDS)
@@ -95,10 +99,10 @@ constructor(
 
     private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
         auth.signInWithCredential(credential).addOnCompleteListener {
-            if (it.isSuccessful){
+            if (it.isSuccessful) {
                 phoneCallbacksListener.onOtpVerifyCompleted()
             } else {
-                when(it.exception){
+                when (it.exception) {
                     is FirebaseAuthInvalidCredentialsException -> {
                         phoneCallbacksListener.onOtpVerifyFailed("Wrong Otp")
                     }
@@ -124,5 +128,25 @@ constructor(
     }
 
 
+    fun removeSurroundingString(str: String?): String {
+        var start: Int? = null
+        var end: Int? = null
+
+
+        str!!.forEachIndexed { index, c ->
+            if (c.toString() == "(") {
+                start = index - 1
+            }
+            if (c.toString() == ")") {
+                end = index + 1
+            }
+        }
+
+        return if (start != null && end != null) {
+            str.removeRange(start!!, end!!)
+        } else {
+            str
+        }
+    }
 
 }

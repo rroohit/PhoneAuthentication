@@ -60,7 +60,6 @@ constructor(
             UiEvent.Initial -> Unit
 
             is UiEvent.PhoneNumberUiButtonClick -> {
-
                 viewModelScope.launch {
                     sendOtp("+91${phoneNumber.value}", event.activity)
                 }
