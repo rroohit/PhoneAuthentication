@@ -1,5 +1,5 @@
 # PhoneAuthentication
-A example of implementing Phone authentication feature in app. <br>
+A practical implementation of Phone authentication features in Android application development with proper architecture design. <br>
 Firebase Phone Authentication. Android Clean Architecture used.
 
 Screenshots
